@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { Component } from "react";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface Movie {
+  id: number;
+  title: string;
+  year: string;
+  image: string;
+}
+
+interface AppProps {}
+
+interface AppState {
+  movies: Movie[];
+}
+
+class App extends Component<AppProps, AppState> {
+  state = {
+    movies: []
+  };
+
+  render() {
+    return (
+      <div className="row">
+        <h4 className="col m-2 text-center">The Movie DB</h4>
+      </div>
+    );
+  }
+
+  componentDidMount() {
+    // axios.get()
+  }
 }
 
 export default App;
