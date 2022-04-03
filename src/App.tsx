@@ -1,8 +1,9 @@
 import axios from "axios";
 import { ChangeEvent, Component } from "react";
 import "./App.css";
+import MovieCard from "./movie-card/MovieCard";
 
-interface Movie {
+export interface Movie {
   id: number;
   title: string;
   year: string;
@@ -75,7 +76,7 @@ class App extends Component<AppProps, AppState> {
       <div className="row">
         <h4 className="col m-2 text-center">The Movie DB</h4>
         <form>
-          <div className="col-4 m-2">
+          <div className="col-lg-4 col-md-6 col-sm-12 m-2">
             <input
               type="text"
               className="form-control"
@@ -84,21 +85,35 @@ class App extends Component<AppProps, AppState> {
             />
           </div>
         </form>
+
         {this.parseMovies()}
       </div>
     );
   }
 
   parseMovies() {
-    return (
-      <div>
-        {this.state.movies.map((movie: Movie) => (
-          <div key={movie.id}>
-            <pre>{JSON.stringify(movie, null, 2)}</pre>
+    const { searchString, movies } = this.state;
+
+    // if (!searchString) return <span>Waiting for user input...</span>;
+
+    if (!!searchString) {
+      if (!movies.length) return <span>No movies found!</span>;
+      else
+        return (
+          <div className="row">
+            {this.state.movies.map((movie: Movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
           </div>
-        ))}
-      </div>
-    );
+          // <div>
+          //   {this.state.movies.map((movie: Movie) => (
+          //     <div key={movie.id}>
+          //       <pre>{JSON.stringify(movie, null, 2)}</pre>
+          //     </div>
+          //   ))}
+          // </div>
+        );
+    }
   }
 
   componentDidMount() {
@@ -109,7 +124,8 @@ class App extends Component<AppProps, AppState> {
     if (res.status === 200) {
       const imagesConfig = (res.data as ConfigData).images;
       const imageBaseUrl = imagesConfig.secure_base_url;
-      const posterSize = imagesConfig.poster_sizes[0];
+      const posterSize =
+        imagesConfig.poster_sizes[imagesConfig.poster_sizes.length - 4];
 
       this.setState({ imageBaseUrl, posterSize });
     }
@@ -135,13 +151,16 @@ class App extends Component<AppProps, AppState> {
   }
 
   handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value;
+    const searchString = event.target.value;
+    this.setState({ searchString });
 
-    axios
-      .get(`${this.searchUrl}&query=${input}`)
-      .then((res) => this.handleDataResponse(res))
-      .catch((err) => console.log(err));
-  }
+    if (!!searchString)
+      axios
+        .get(`${this.searchUrl}&query=${searchString}`)
+        .then((res) => this.handleDataResponse(res))
+        .catch((err) => console.log(err));
+    else this.setState({ movies: [] });
+  };
 }
 
 export default App;
