@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Component } from "react";
+import { ChangeEvent, Component } from "react";
 import "./App.css";
 
 interface Movie {
@@ -59,12 +59,31 @@ class App extends Component<AppProps, AppState> {
     imageBaseUrl: "",
     posterSize: "",
     movies: [],
+    searchString: "",
   };
+
+  get configUrl() {
+    return `${BASE_API_URL}/${CONFIG_URL}?${API_KEY}`;
+  }
+
+  get searchUrl() {
+    return `${BASE_API_URL}/${SEARCH_URL}?${API_KEY}`;
+  }
 
   render() {
     return (
       <div className="row">
         <h4 className="col m-2 text-center">The Movie DB</h4>
+        <form>
+          <div className="col-4 m-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search for a movie..."
+              onChange={this.handleSearchChange}
+            />
+          </div>
+        </form>
         {this.parseMovies()}
       </div>
     );
@@ -83,15 +102,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    const configUrl = `${BASE_API_URL}/${CONFIG_URL}?${API_KEY}`;
-    axios.get(configUrl).then((res) => this.handleConfigResponse(res));
-
-    // const input = "a";
-    // const searchUrl = `${BASE_API_URL}/${SEARCH_URL}?${API_KEY}`;
-    // axios
-    //   .get(`${searchUrl}&query=${input}`)
-    //   .then((res) => this.handleDataResponse(res))
-    //   .catch((err) => console.log(err));
+    axios.get(this.configUrl).then((res) => this.handleConfigResponse(res));
   }
 
   handleConfigResponse(res: ApiResponse) {
@@ -121,6 +132,15 @@ class App extends Component<AppProps, AppState> {
 
       this.setState({ movies });
     }
+  }
+
+  handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.target.value;
+
+    axios
+      .get(`${this.searchUrl}&query=${input}`)
+      .then((res) => this.handleDataResponse(res))
+      .catch((err) => console.log(err));
   }
 }
 
