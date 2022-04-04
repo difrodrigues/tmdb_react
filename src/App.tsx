@@ -80,7 +80,7 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
       <div className="app row m-0">
-        <h1 className="col-12 m-2 text-center text-white">The Movie DB</h1>
+        <h1 className="col-12 mt-2 mb-2 text-center text-white">The Movie DB</h1>
         <div className="p-fluid col-lg-4 col-md-6 col-sm-12 m-2">
           <div className="field col-12 md:col-4">
             <span className="p-float-label p-input-icon-left">
