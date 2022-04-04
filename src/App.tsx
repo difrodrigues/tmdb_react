@@ -1,13 +1,18 @@
 import axios from "axios";
+import "primeicons/primeicons.css"; //icons
+import { InputText } from "primereact/inputtext";
+import "primereact/resources/primereact.min.css"; //core css
+import "primereact/resources/themes/mdc-dark-indigo/theme.css"; //theme
 import { ChangeEvent, Component } from "react";
 import "./App.css";
 import MovieCard from "./movie-card/MovieCard";
 
+//#region Interfaces
 export interface Movie {
   id: number;
   title: string;
   year: string;
-  image: string;
+  image: string | null;
 }
 
 interface ApiResponse {
@@ -49,6 +54,7 @@ interface AppProps {}
 interface AppState {
   // movies: Movie[];
 }
+//#endregion
 
 const BASE_API_URL = "https://api.themoviedb.org/3";
 const SEARCH_URL = "search/movie";
@@ -73,18 +79,21 @@ class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <div className="row">
-        <h4 className="col m-2 text-center">The Movie DB</h4>
-        <form>
-          <div className="col-lg-4 col-md-6 col-sm-12 m-2">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search for a movie..."
-              onChange={this.handleSearchChange}
-            />
+      <div className="app row m-0">
+        <h1 className="col-12 m-2 text-center text-white">The Movie DB</h1>
+        <div className="p-fluid col-lg-4 col-md-6 col-sm-12 m-2">
+          <div className="field col-12 md:col-4">
+            <span className="p-float-label p-input-icon-left">
+              <i className="pi pi-search" />
+              <InputText
+                id="search"
+                value={this.state.searchString}
+                onChange={this.handleSearchChange}
+              />
+              <label htmlFor="search">Search for a movie...</label>
+            </span>
           </div>
-        </form>
+        </div>
 
         {this.parseMovies()}
       </div>
@@ -100,7 +109,7 @@ class App extends Component<AppProps, AppState> {
       if (!movies.length) return <span>No movies found!</span>;
       else
         return (
-          <div className="row">
+          <div className="row m-0">
             {this.state.movies.map((movie: Movie) => (
               <MovieCard key={movie.id} movie={movie} />
             ))}
@@ -142,7 +151,9 @@ class App extends Component<AppProps, AppState> {
           id: m.id,
           title: m.title,
           year: m.release_date.substring(0, 4),
-          image: `${imageBaseUrl}${posterSize}${m.poster_path}`,
+          image: m.poster_path
+            ? `${imageBaseUrl}${posterSize}${m.poster_path}`
+            : null,
         })
       );
 
