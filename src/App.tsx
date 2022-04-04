@@ -106,7 +106,7 @@ class App extends Component<AppProps, AppState> {
     // if (!searchString) return <span>Waiting for user input...</span>;
 
     if (!!searchString) {
-      if (!movies.length) return <span>No movies found!</span>;
+      if (!movies.length) return <span className="text-white">No movies found!</span>;
       else
         return (
           <div className="row m-0">
