@@ -30,6 +30,7 @@ interface ConfigData {
 interface SearchMovieData {
   page: number;
   results: MovieSearch[];
+  total_pages: number;
 }
 
 interface MovieSearch {
@@ -62,7 +63,7 @@ class App extends Component {
     movies: [],
     searchString: "",
     page: 1,
-    lastPage: false,
+    totalPages: 1,
     loadingMovies: false
   };
 
@@ -143,13 +144,13 @@ class App extends Component {
 
   handleDataResponse(res: ApiResponse, appendToMovies: boolean) {
     if (res.status === 200) {
-      const moviesSearch = (res.data as SearchMovieData).results;
+      const { results, total_pages } = res.data as SearchMovieData;
       const movies: Movie[] = appendToMovies ? this.state.movies : [];
       const { imageBaseUrl, posterSize } = this.state;
-      let { page, lastPage, loadingMovies } = this.state;
+      let { page, totalPages, loadingMovies } = this.state;
 
-      if (moviesSearch.length) {
-        moviesSearch.map((m) =>
+      if (results.length) {
+        results.map((m) =>
           movies.push({
             id: m.id,
             title: m.title,
@@ -160,12 +161,13 @@ class App extends Component {
           })
         );
 
+        page === 1 && (totalPages = total_pages);
         page++;
-      } else lastPage = true;
+      }
 
       loadingMovies = false;
 
-      this.setState({ movies, page, lastPage, loadingMovies });
+      this.setState({ movies, page, totalPages, loadingMovies });
     }
   }
 
@@ -174,14 +176,15 @@ class App extends Component {
   };
 
   getMovies(appendToMovies: boolean) {
-    const { searchString, page } = this.state;
+    const { searchString, page, totalPages } = this.state;
 
-    if (!!searchString)
-      axios
-        .get(`${this.searchUrl}&query=${searchString}&page=${page}`)
-        .then((res) => this.handleDataResponse(res, appendToMovies))
-        .catch((err) => console.log(err));
-    else this.setState({ movies: [] });
+    if (!!searchString) {
+      if (page <= totalPages)
+        axios
+          .get(`${this.searchUrl}&query=${searchString}&page=${page}`)
+          .then((res) => this.handleDataResponse(res, appendToMovies))
+          .catch((err) => console.log(err));
+    } else this.setState({ movies: [] });
   }
 
   handleScroll = (event: UIEvent<HTMLDivElement>) => {
