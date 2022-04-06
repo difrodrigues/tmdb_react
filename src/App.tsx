@@ -184,7 +184,7 @@ class App extends Component {
           .get(`${this.searchUrl}&query=${searchString}&page=${page}`)
           .then((res) => this.handleDataResponse(res, appendToMovies))
           .catch((err) => console.log(err));
-    } else this.setState({ movies: [] });
+    } else this.setState({ movies: [], loadingMovies: false });
   }
 
   handleScroll = (event: UIEvent<HTMLDivElement>) => {
