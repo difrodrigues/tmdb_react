@@ -3,7 +3,7 @@ import "primeicons/primeicons.css"; //icons
 import { InputText } from "primereact/inputtext";
 import "primereact/resources/primereact.min.css"; //core css
 import "primereact/resources/themes/mdc-dark-indigo/theme.css"; //theme
-import { ChangeEvent, Component } from "react";
+import { ChangeEvent, Component, UIEvent } from "react";
 import "./App.css";
 import MovieCard from "./movie-card/MovieCard";
 
@@ -48,12 +48,6 @@ interface MovieSearch {
   vote_average: number;
   vote_count: number;
 }
-
-interface AppProps {}
-
-interface AppState {
-  // movies: Movie[];
-}
 //#endregion
 
 const BASE_API_URL = "https://api.themoviedb.org/3";
@@ -61,12 +55,15 @@ const SEARCH_URL = "search/movie";
 const CONFIG_URL = "configuration";
 const API_KEY = "api_key=b3f55574834a697708239742b7555490";
 
-class App extends Component<AppProps, AppState> {
+class App extends Component {
   state = {
     imageBaseUrl: "",
     posterSize: "",
     movies: [],
     searchString: "",
+    page: 1,
+    lastPage: false,
+    loadingMovies: false
   };
 
   get configUrl() {
@@ -79,28 +76,32 @@ class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <div className="app row m-0">
-        <h1 className="col-12 mt-2 mb-2 text-center text-white">The Movie DB</h1>
-        <div className="p-fluid col-lg-4 col-md-6 col-sm-12 m-2">
-          <div className="field col-12 md:col-4">
-            <span className="p-float-label p-input-icon-left">
-              <i className="pi pi-search" />
-              <InputText
-                id="search"
-                value={this.state.searchString}
-                onChange={this.handleSearchChange}
-              />
-              <label htmlFor="search">Search for a movie...</label>
-            </span>
+      <div className="app" onScroll={this.handleScroll}>
+        <div className="row m-0">
+          <h1 className="col-12 mt-2 mb-2 text-center text-white">The Movie DB</h1>
+          <div className="p-fluid col-lg-4 col-md-6 col-sm-12 m-2">
+            <div className="field col-12 md:col-4">
+              <span className="p-float-label p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText
+                  id="search"
+                  value={this.state.searchString}
+                  onChange={this.handleSearchChange}
+                />
+                <label htmlFor="search">Search for a movie...</label>
+              </span>
+            </div>
           </div>
-        </div>
 
-        {this.parseMovies()}
+          {this.renderMovies()}
+          
+          {this.state.loadingMovies && <span>Loading more movies...</span>}
+        </div>
       </div>
     );
   }
 
-  parseMovies() {
+  renderMovies() {
     const { searchString, movies } = this.state;
 
     // if (!searchString) return <span>Waiting for user input...</span>;
@@ -140,38 +141,56 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  handleDataResponse(res: ApiResponse) {
+  handleDataResponse(res: ApiResponse, appendToMovies: boolean) {
     if (res.status === 200) {
       const moviesSearch = (res.data as SearchMovieData).results;
-      const movies: Movie[] = [];
+      const movies: Movie[] = appendToMovies ? this.state.movies : [];
       const { imageBaseUrl, posterSize } = this.state;
+      let { page, lastPage, loadingMovies } = this.state;
 
-      moviesSearch.map((m) =>
-        movies.push({
-          id: m.id,
-          title: m.title,
-          year: m.release_date.substring(0, 4),
-          image: m.poster_path
-            ? `${imageBaseUrl}${posterSize}${m.poster_path}`
-            : null,
-        })
-      );
+      if (moviesSearch.length) {
+        moviesSearch.map((m) =>
+          movies.push({
+            id: m.id,
+            title: m.title,
+            year: m.release_date ? m.release_date.substring(0, 4) : "Unknown",
+            image: m.poster_path
+              ? `${imageBaseUrl}${posterSize}${m.poster_path}`
+              : null,
+          })
+        );
 
-      this.setState({ movies });
+        page++;
+      } else lastPage = true;
+
+      loadingMovies = false;
+
+      this.setState({ movies, page, lastPage, loadingMovies });
     }
   }
 
   handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const searchString = event.target.value;
-    this.setState({ searchString });
+    this.setState({ searchString: event.target.value, page: 1 }, () => this.getMovies(false));
+  };
+
+  getMovies(appendToMovies: boolean) {
+    const { searchString, page } = this.state;
 
     if (!!searchString)
       axios
-        .get(`${this.searchUrl}&query=${searchString}`)
-        .then((res) => this.handleDataResponse(res))
+        .get(`${this.searchUrl}&query=${searchString}&page=${page}`)
+        .then((res) => this.handleDataResponse(res, appendToMovies))
         .catch((err) => console.log(err));
     else this.setState({ movies: [] });
-  };
+  }
+
+  handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { clientHeight, scrollHeight, scrollTop } = event.currentTarget;
+    const bottom = scrollHeight - scrollTop === clientHeight;
+    if (bottom) {
+      this.setState({ loadingMovies: true }, () => this.getMovies(true));
+    };
+  }
 }
 
 export default App;
