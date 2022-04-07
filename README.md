@@ -1,46 +1,42 @@
-# Getting Started with Create React App
+# The Movie Database (React)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The Movie Database is a community built movie and TV database.
 
-## Available Scripts
+This app allows you to search for a movie through an input box.
 
-In the project directory, you can run:
+## Prerequisites
 
-### `npm start`
+Make sure you have installed on your development machine:
+* Node.js - Download the latest version from [Node.js Official Website](http://nodejs.org/).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Download the repository zip File
+To use the app you should download a zip copy from the [master branch on GitHub](https://github.com/difrodrigues/tmdb_react/archive/refs/heads/master.zip).
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Quick install
+The project comes pre-bundled with a `package.json` file that contain the list of modules you need to start your application.
 
-### `npm test`
+To install the dependencies, run the following command in the application folder from the command-line:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+$ npm install
+```
 
-### `npm run build`
+## Running the application
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Run the application using npm:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+$ npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The application should run on port 3000 and your browser just go to [http://localhost:3000](http://localhost:3000) as soon as compilation finishes.
 
-### `npm run eject`
+And there you are! Try to find your favorite movie typing it's title in the search box!
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Testing the application
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+You can run the unit tests executing the following command:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+$ npm test
+```
